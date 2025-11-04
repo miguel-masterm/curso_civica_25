@@ -40,3 +40,8 @@ models:
     # Applies to all files under models/example/
     example:
       +materialized: table
+
+# This structure will modify the DB where the seeds are pulled
+seeds:
+    +database: "ALUMNO21_DEV_BRONZE_DB"
+    +schema: "SEEDS"      
