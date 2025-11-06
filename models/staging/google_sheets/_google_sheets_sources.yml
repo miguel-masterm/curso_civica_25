@@ -1,0 +1,56 @@
+version: 2
+
+sources:
+
+  - name: google_sheets # name of the source
+    description: >
+      Raw data demo from Database
+    schema: google_sheets # this is the schema our raw data lives in
+    database: ALUMNO21_DEV_BRONZE_DB # this is the name of our database
+
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+
+    freshness:
+      warn_after: {count: 365, period: day}
+      error_after: {count: 730, period: day}
+
+    tables:
+
+      - name: budget
+        loaded_at_field: _fivetran_synced
+        description: >
+          Data about budgen in demo case
+        columns:
+          - name: _row
+            description: >
+              Number of each row from google sheet.
+            data_tests:
+              - unique
+              - not_null
+          - name: product_id
+            description: >
+              UUID for each unique product inside platform.
+            data_tests:
+              - relationships:
+                  to: source('sql_server_dbo', 'products')
+                  field: product_id
+              - not_null    
+          - name: quantity
+            description: >
+                Number of units for each product and each month for products
+            data_tests:
+              - positive_values
+              - not_null
+          - name: month
+            description: >
+                Each month for the budget -> End of the month.
+            data_tests:
+              - not_null    
+          - name: _fivetran_synced
+            description: >
+                Date when the data was loaded
+            data_tests:
+              - not_null     

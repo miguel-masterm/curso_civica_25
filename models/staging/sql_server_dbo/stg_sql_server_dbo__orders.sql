@@ -18,7 +18,7 @@ renamed_casted AS (
         , tracking_id
         , status
         , _fivetran_deleted AS delete_status
-        , CONVERT_TIMEZONE('TIMESTAMP_NTZ', 'UTC',_fivetran_synced) AS date_load
+        , CONVERT_TIMEZONE('UTC',_fivetran_synced) AS date_load
     FROM src_orders
     )
 

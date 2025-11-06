@@ -9,7 +9,7 @@ renamed_casted AS (
         , discount AS discount_dollars
         , status AS discount_status
         , _fivetran_deleted AS delete_status
-        , CONVERT_TIMEZONE('TIMESTAMP_NTZ', 'UTC',_fivetran_synced) AS date_load
+        , CONVERT_TIMEZONE('UTC',_fivetran_synced) AS date_load
     FROM src_promos
     ),
 new_reg AS (
@@ -18,7 +18,8 @@ new_reg AS (
     0 AS discount_dollars,
     'inactive' AS discount_status,
     NULL AS delete_status,
-    CURRENT_DATE() AS date_load
+    CONVERT_TIMEZONE('UTC',CURRENT_DATE()) AS date_load
+    
 )    
 SELECT * FROM renamed_casted
 UNION ALL
