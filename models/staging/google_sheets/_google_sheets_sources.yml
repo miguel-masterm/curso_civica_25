@@ -13,14 +13,10 @@ sources:
       schema: false
       identifier: false
 
-    freshness:
-      warn_after: {count: 365, period: day}
-      error_after: {count: 730, period: day}
 
     tables:
 
       - name: budget
-        loaded_at_field: _fivetran_synced
         description: >
           Data about budgen in demo case
         columns:
@@ -35,22 +31,29 @@ sources:
               UUID for each unique product inside platform.
             data_tests:
               - relationships:
-                  to: source('sql_server_dbo', 'products')
-                  field: product_id
-              - not_null    
+                  arguments:
+                    to: source('sql_server_dbo', 'products')
+                    field: product_id
+              - not_null
           - name: quantity
             description: >
-                Number of units for each product and each month for products
+              Number of units for each product and each month for products
             data_tests:
               - positive_values
               - not_null
           - name: month
             description: >
-                Each month for the budget -> End of the month.
+              Each month for the budget -> End of the month.
             data_tests:
-              - not_null    
+              - not_null
           - name: _fivetran_synced
             description: >
-                Date when the data was loaded
+              Date when the data was loaded
             data_tests:
-              - not_null     
+              - not_null
+        config:
+          loaded_at_field: _fivetran_synced
+    config:
+      freshness:
+        warn_after: {count: 365, period: day}
+        error_after: {count: 730, period: day}

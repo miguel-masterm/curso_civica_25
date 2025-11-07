@@ -4,7 +4,7 @@ sources:
 
   - name: sql_server_dbo # name of the source
     description: >
-        Raw data demo from Database
+      Raw data demo from Database
     schema: sql_server_dbo # this is the schema our raw data lives in
     database: ALUMNO21_DEV_BRONZE_DB # this is the name of our database
 
@@ -13,16 +13,12 @@ sources:
       schema: false
       identifier: false
 
-    freshness:
-      warn_after: {count: 365, period: day}
-      error_after: {count: 730, period: day}
 
     tables:
 
       - name: addresses
         description: >
           Data about the different addresses: states, country...
-        loaded_at_field: _fivetran_synced
         columns:
           - name: address_id
             description: >
@@ -57,63 +53,83 @@ sources:
               simple check if its deleted
           - name: _fivetran_synced
             description: >
-                Date when the data was loaded
+              Date when the data was loaded
             data_tests:
               - not_null
+        config:
+          loaded_at_field: _fivetran_synced
       - name: events
         description: >
           Data about the online shipping actions
-        loaded_at_field: _fivetran_synced
         columns:
           - name: event_id
             description: >
               UUID for each unique event
             data_tests:
               - unique
-              - not_null  
+              - not_null
           - name: page_url
             description: >
               url of shipping event
             data_tests:
-              - not_null   
+              - not_null
           - name: event_type
             description: >
               event description
             data_tests:
-              - not_null  
+              - not_null
           - name: user_id
             description: >
               UUID of the user that has generated the event
             data_tests:
-              - not_null 
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('sql_server_dbo', 'users')
+                    field: user_id
           - name: product_id
             description: >
               UUID of the product related with the event
+            data_tests:
+              - relationships:
+                  config:
+                    severity: warn
+                  arguments:
+                    to: source('sql_server_dbo', 'products')
+                    field: product_id
           - name: session_id
             description: >
               UUID of the user session
             data_tests:
-              - not_null 
+              - not_null
           - name: created_at
             description: >
               date when the event was created
             data_tests:
-              - not_null 
+              - not_null
           - name: order_id
             description: >
               UUID of the event order
+            data_tests:
+              - relationships:
+                  config:
+                    severity: warn
+                  arguments:
+                    to: source('sql_server_dbo', 'orders')
+                    field: order_id
           - name: _fivetran_deleted
             description: >
               simple check if its deleted
           - name: _fivetran_synced
             description: >
-                Date when the data was loaded
+              Date when the data was loaded
             data_tests:
               - not_null
+        config:
+          loaded_at_field: _fivetran_synced
       - name: orders
         description: >
           Data about the different shipping requests
-        loaded_at_field: _fivetran_synced
         columns:
           - name: order_id
             description: >
@@ -128,17 +144,21 @@ sources:
             description: >
               Cost of shipping service
             data_tests:
-              - positive_values  
+              - positive_values
           - name: address_id
             description: >
               UUID of the user address
             data_tests:
               - not_null
+              - relationships:
+                  arguments:
+                    to: source('sql_server_dbo', 'addresses')
+                    field: address_id
           - name: created_at
             description: >
               Date when the order was created
             data_tests:
-              - not_null  
+              - not_null
           - name: promo_id
             description: >
               UUID of the promo applied to the order
@@ -149,17 +169,21 @@ sources:
             description: >
               Cost order
             data_tests:
-              - positive_values  
+              - positive_values
           - name: user_id
             description: >
               UUID of the user that has generated the order
             data_tests:
               - not_null
+              - relationships:
+                  arguments:
+                    to: source('sql_server_dbo', 'users')
+                    field: user_id
           - name: order_total
             description: >
               Total cost order
             data_tests:
-              - positive_values  
+              - positive_values
           - name: delivered_at
             description: >
               Date of estimated delivery
@@ -170,35 +194,42 @@ sources:
             description: >
               Indicates how its going on the status
             data_tests:
-              - not_null  
+              - not_null
           - name: _fivetran_deleted
             description: >
               simple check if its deleted
           - name: _fivetran_synced
             description: >
-                Date when the data was loaded
+              Date when the data was loaded
             data_tests:
               - not_null
+        config:
+          loaded_at_field: _fivetran_synced
       - name: order_items
         description: >
           Information about the different items that has been ordered
-        loaded_at_field: _fivetran_synced
         columns:
           - name: order_id
             description: >
               UUID for each unique order
             data_tests:
-              - unique
               - not_null
+              - relationships:
+                  arguments:
+                    to: source('sql_server_dbo', 'orders')
+                    field: order_id
           - name: product_id
             description: >
               UUID for each unique product
             data_tests:
-              - unique
               - not_null
+              - relationships:
+                  arguments:
+                    to: source('sql_server_dbo', 'products')
+                    field: product_id
           - name: quantity
             description: >
-                Number of units products
+              Number of units products
             data_tests:
               - positive_values
               - not_null
@@ -207,13 +238,14 @@ sources:
               simple check if its deleted
           - name: _fivetran_synced
             description: >
-                Date when the data was loaded
+              Date when the data was loaded
             data_tests:
               - not_null
+        config:
+          loaded_at_field: _fivetran_synced
       - name: products
         description: >
-              Information about products
-        loaded_at_field: _fivetran_synced
+          Information about products
         columns:
           - name: product_id
             description: >
@@ -244,28 +276,103 @@ sources:
               simple check if its deleted
           - name: _fivetran_synced
             description: >
-                Date when the data was loaded
+              Date when the data was loaded
             data_tests:
               - not_null
+        config:
+          loaded_at_field: _fivetran_synced
       - name: promos
-        loaded_at_field: _fivetran_synced
+        description: >
+          Information about discounts and promotios to apply in products
         columns:
           - name: promo_id
+            description: >
+              UUID for each promo
+            data_tests:
+              - unique
+              - not_null
           - name: discount
+            description: >
+              Value of total discount to be applied
+            data_tests:
+              - positive_values
+              - not_null
           - name: status
+            description: >
+              Description of the discount
           - name: _fivetran_deleted
-          - name: _fivetran_synced 
+            description: >
+              simple check if its deleted
+          - name: _fivetran_synced
+            description: >
+              Date when the data was loaded
+            data_tests:
+              - not_null
+        config:
+          loaded_at_field: _fivetran_synced
       - name: users
-        loaded_at_field: _fivetran_synced
+        description: >
+          Table taht conains the different users of our E-comerce
         columns:
           - name: user_id
+            description: >
+              UUID for each unique product
+            data_tests:
+              - unique
+              - not_null
           - name: updated_at
+            description: >
+              Update status date for each user information
+            data_tests:
+              - not_null
           - name: address_id
+            description: >
+              UUID for user address
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('sql_server_dbo', 'addresses')
+                    field: address_id
           - name: last_name
+            description: >
+              Information of each user last name
+            data_tests:
+              - not_null
           - name: created_at
+            description: >
+              Date when the user was created
+            data_tests:
+              - not_null
           - name: phone_number
+            description: >
+              Phone number for each user
+            data_tests:
+              - not_null
           - name: total_orders
+            description: >
+              Info of the total number of orders
           - name: first_name
+            description: >
+              Information of each user first name
+            data_tests:
+              - not_null
           - name: email
+            description: >
+              Information of each user email
+            data_tests:
+              - not_null
           - name: _fivetran_deleted
-          - name: _fivetran_synced                   
+            description: >
+              simple check if its deleted
+          - name: _fivetran_synced
+            description: >
+              Date when the data was loaded
+            data_tests:
+              - not_null
+        config:
+          loaded_at_field: _fivetran_synced
+    config:
+      freshness:
+        warn_after: {count: 365, period: day}
+        error_after: {count: 730, period: day}

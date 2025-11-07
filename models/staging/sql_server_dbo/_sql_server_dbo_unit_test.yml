@@ -3,7 +3,7 @@ unit_tests:
     description: "Check if email is valid"
     model: stg_sql_server_dbo__users
     given:
-      - input: source('stg_sql_server_dbo__users')
+      - input: source('sql_server_dbo', 'users')
         rows:
           - {email: ekollaschek2q@tuttocitta.it}
           - {email: sdivers2p@msu.edu}
