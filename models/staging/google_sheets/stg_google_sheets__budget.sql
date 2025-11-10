@@ -18,11 +18,11 @@ WITH src_budget AS (
     ),
 renamed_casted AS (
     SELECT
-          _row
-        , product_id
-        , quantity
-        , month
-        , _fivetran_synced AS date_load
+          CAST(_row AS INT) AS ordinal_register
+        , CAST(product_id AS VARCHAR) AS product_id
+        , CAST(quantity AS INT) AS quantity
+        , TO_DATE(month) AS month
+        , CONVERT_TIMEZONE('UTC',_fivetran_synced) AS date_load
     FROM src_budget
     )
 

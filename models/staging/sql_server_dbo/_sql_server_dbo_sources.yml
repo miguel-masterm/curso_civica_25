@@ -21,37 +21,46 @@ sources:
           Data about the different addresses: states, country...
         columns:
           - name: address_id
+            data_type: varchar
             description: >
               UUID for each unique address
             data_tests:
               - unique
               - not_null
           - name: zipcode
+            data_type: number
             description: >
               Number for the zipcode
             data_tests:
               - not_null
               - positive_values
           - name: country
+            data_type: varchar
             description: >
               Name of the address country
             data_tests:
               - not_null
           - name: address
+            data_type: varchar
             description: >
               Name of the address
             data_tests:
               - not_null
               - unique
           - name: state
+            data_type: varchar
             description: >
               Name of the State
             data_tests:
               - not_null
           - name: _fivetran_deleted
+            data_type: boolean
             description: >
               simple check if its deleted
+            data_tests:
+              - accepted_bool_values  
           - name: _fivetran_synced
+            data_type: timestamp_ntz
             description: >
               Date when the data was loaded
             data_tests:
@@ -162,6 +171,12 @@ sources:
           - name: promo_id
             description: >
               UUID of the promo applied to the order
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('sql_server_dbo', 'promos')
+                    field: promo_id  
           - name: estimated_delivery_at
             description: >
               Date of estimated delivery

@@ -9,7 +9,7 @@ renamed_casted AS (
         , try_to_double(replace(shipping_cost, ',', '.')) AS shipping_cost
         , address_id
         , created_at
-        , MD5(REPLACE(promo_id, '', 'no_promo')) AS promo_id
+        , MD5(COALESCE(NULLIF(promo_id, ''), 'no_promo')) AS promo_id
         , estimated_delivery_at
         , try_to_double(replace(order_cost, ',', '.')) AS order_cost
         , user_id

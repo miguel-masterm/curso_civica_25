@@ -2,11 +2,11 @@ WITH src_addresses AS (
     SELECT * 
     FROM {{ ref('base_sql_server_dbo__addresses') }}
     ),
-renamed_casted AS (
-    SELECT
-          MD5(CONCAT(country, state, zipcode)) AS countries_id
-        , address_id
-        , address
+unique_data AS (
+    SELECT DISTINCT
+        country
+        , state
+        , zipcode
         , delete_status
         , date_load
     FROM src_addresses
