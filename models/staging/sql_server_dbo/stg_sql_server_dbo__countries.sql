@@ -2,11 +2,10 @@ WITH src_addresses AS (
     SELECT * 
     FROM {{ ref('base_sql_server_dbo__addresses') }}
     ),
-unique_data AS (
+renamed_casted AS (
     SELECT DISTINCT
-        country
-        , state
-        , zipcode
+        MD5(country) AS country_id
+        , country
         , delete_status
         , date_load
     FROM src_addresses
