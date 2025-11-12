@@ -37,6 +37,11 @@ models:
     # Applies to all files under models/example/
     staging:
       +materialized: view
+      +database: "{{ env_var('DBT_ENVIRONMENTS') }}_SILVER_DB"
+      google_sheets:
+        +schema: google_sheets
+      sql_server_dbo:
+        +schema: sql_server_dbo
 
 # This structure will modify the DB where the seeds are pulled
 #seeds:
@@ -45,5 +50,13 @@ models:
     +meta:
       example:
         +materialized: table
+snapshots:
+  +transient: false
+  +target_database: "{{ env_var('DBT_ENVIRONMENTS') }}_SILVER_DB"
+  +target_schema: snapshots
+          
 flags:
   require_generic_test_arguments_property: true
+
+on-run-start:
+  - "ALTER WAREHOUSE WH_CURSO_DATA_ENGINEERING RESUME;"  
